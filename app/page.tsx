@@ -1,102 +1,95 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Activity, ArrowLeft, Camera, ChevronRight, Crown, Flame, Gamepad2, Lock, Medal, Play, Shield, Sparkles, Star, Trophy, Zap } from 'lucide-react';
+import { Activity, ArrowLeft, Camera, ChevronRight, CircleDot, Flame, Gamepad2, Gauge, Lock, Medal, Play, Radio, Shield, Sparkles, Star, Target, Trophy, Zap } from 'lucide-react';
+import PoseCamera from '../components/PoseCamera';
 
-type Sport = { id:string; name:string; kicker:string; icon:string; status:'ready'|'soon'; tone:string };
+type Screen='home'|'boxing'|'calibration'|'motionlab';
+type Sport={id:string;name:string;kicker:string;icon:string;status:'ready'|'soon';tone:string;meta:string};
 
-const sports: Sport[] = [
-  { id:'boxing', name:'Boxing Arena', kicker:'Golpea · esquiva · bloquea', icon:'🥊', status:'ready', tone:'coral' },
-  { id:'ninja', name:'Ninja Reflex', kicker:'Reacción y cardio', icon:'🥷', status:'soon', tone:'violet' },
-  { id:'runner', name:'City Runner', kicker:'Corre · salta · agáchate', icon:'🏃', status:'soon', tone:'cyan' },
-  { id:'tennis', name:'Shadow Tennis', kicker:'Ritmo y coordinación', icon:'🎾', status:'soon', tone:'lime' },
-  { id:'target', name:'Target Rush', kicker:'Velocidad y precisión', icon:'🎯', status:'soon', tone:'amber' },
-  { id:'boss', name:'Boss Battle', kicker:'Todo tu cuerpo', icon:'👾', status:'soon', tone:'pink' },
+const sports:Sport[]=[
+  {id:'boxing',name:'Boxing Arena',kicker:'Golpea · bloquea · esquiva',icon:'🥊',status:'ready',tone:'orange',meta:'BODY TRACKING'},
+  {id:'ninja',name:'Ninja Reflex',kicker:'Reacción · velocidad · cardio',icon:'🥷',status:'soon',tone:'purple',meta:'REFLEX'},
+  {id:'runner',name:'City Runner',kicker:'Corre · salta · agáchate',icon:'🏃',status:'soon',tone:'blue',meta:'FULL BODY'},
+  {id:'tennis',name:'Shadow Tennis',kicker:'Swing · ritmo · coordinación',icon:'🎾',status:'soon',tone:'green',meta:'MOTION'},
+  {id:'target',name:'Target Rush',kicker:'Golpea objetivos en 360°',icon:'🎯',status:'soon',tone:'yellow',meta:'REACTION'},
+  {id:'boss',name:'Boss Battle',kicker:'Combos · resistencia · poder',icon:'👾',status:'soon',tone:'pink',meta:'CHALLENGE'},
 ];
 
-const boxingModes = [
-  { title:'Quick Fight', subtitle:'3 rounds · 6 min', icon:'⚡', unlocked:true },
-  { title:'Combo Lab', subtitle:'Aprende jab + cross', icon:'🎯', unlocked:true },
-  { title:'Survival', subtitle:'Oleadas infinitas', icon:'🔥', unlocked:false },
-  { title:'Championship', subtitle:'Sube en el ranking', icon:'🏆', unlocked:false },
+const modes=[
+  {title:'Motion Lab',subtitle:'Prueba la cámara y tus movimientos',icon:'◎',unlocked:true,action:'motion'},
+  {title:'Quick Fight',subtitle:'3 rounds · 6 min',icon:'⚡',unlocked:true,action:'calibrate'},
+  {title:'Combo Lab',subtitle:'Jab · cross · guardia',icon:'🎯',unlocked:true,action:'calibrate'},
+  {title:'Survival',subtitle:'Oleadas infinitas',icon:'🔥',unlocked:false,action:'locked'},
 ];
 
-export default function Home() {
-  const [screen, setScreen] = useState<'home'|'boxing'|'calibration'>('home');
-  const [energy, setEnergy] = useState(1840);
-  const quote = useMemo(() => ['Muévete. Juega. Repite.','Tu cuerpo es el control.','Hoy no entrenas: hoy compites.'][new Date().getDate()%3], []);
+export default function Home(){
+  const [screen,setScreen]=useState<Screen>('home');
+  const quote=useMemo(()=>['READY. SET. MOVE.','YOUR BODY. YOUR CONTROLLER.','PLAY HARD. MOVE MORE.'][new Date().getDate()%3],[]);
+  if(screen==='boxing')return <BoxingHub onBack={()=>setScreen('home')} onGo={(s)=>setScreen(s)}/>;
+  if(screen==='calibration')return <Calibration onBack={()=>setScreen('boxing')} onReady={()=>setScreen('motionlab')}/>;
+  if(screen==='motionlab')return <MotionLab onBack={()=>setScreen('boxing')}/>;
 
-  if (screen === 'boxing') return <BoxingHub onBack={()=>setScreen('home')} onStart={()=>setScreen('calibration')} />;
-  if (screen === 'calibration') return <Calibration onBack={()=>setScreen('boxing')} />;
+  return <main className="arenaApp">
+    <div className="skyGlow a"/><div className="skyGlow b"/><div className="courtLines"/>
+    <header className="consoleBar">
+      <div className="consoleBrand"><div className="brandOrb"><Activity/></div><div><strong>MOTION ARENA</strong><span>ACTIVE GAME SYSTEM</span></div></div>
+      <div className="consoleStatus"><span><Radio size={14}/> MOTION ONLINE</span><span><Flame size={14}/> 7 DAY STREAK</span><button>AR</button></div>
+    </header>
 
-  return (
-    <main className="shell">
-      <div className="noise" />
-      <header className="topbar">
-        <div className="brand"><div className="brandMark"><Activity size={22}/></div><div><strong>MOTION</strong><span>ARENA</span></div></div>
-        <div className="topActions">
-          <div className="pill"><Flame size={16}/><b>7</b><span>días</span></div>
-          <div className="pill xp"><Zap size={16}/><b>2,480</b><span>XP</span></div>
-          <button className="avatar" aria-label="Perfil">AR</button>
-        </div>
-      </header>
+    <section className="stadiumHero">
+      <div className="stadiumCopy">
+        <div className="heroBadge"><Sparkles size={15}/> PLAYER ONE · LEVEL 18</div>
+        <h1>{quote}</h1>
+        <p>Convierte tu sala en una arena. La cámara lee tu cuerpo y cada movimiento mueve el juego.</p>
+        <div className="heroActions"><button className="playBtn" onClick={()=>setScreen('boxing')}><Play fill="currentColor"/> START SESSION</button><div className="xpMeter"><span>NEXT LEVEL</span><b>2,480 / 3,000 XP</b><i><em/></i></div></div>
+      </div>
+      <div className="heroArena" aria-label="Motion Arena stadium preview">
+        <div className="scoreRibbon"><span>SESSION 01</span><b>00:00</b><span>READY</span></div>
+        <div className="avatarSilhouette"><div className="head"/><div className="torso"/><i className="limb la"/><i className="limb ra"/><i className="limb ll"/><i className="limb rl"/></div>
+        <div className="targetRing r1"/><div className="targetRing r2"/><div className="targetRing r3"/>
+        <span className="floatingMetric m1">+ SPEED</span><span className="floatingMetric m2">+ POWER</span><span className="floatingMetric m3">+ XP</span>
+        <div className="floorGrid"/>
+      </div>
+    </section>
 
-      <section className="hero">
-        <div className="heroCopy">
-          <div className="eyebrow"><Sparkles size={16}/> DAILY MOVE</div>
-          <h1>{quote}</h1>
-          <p>Convierte cada golpe, paso y sentadilla en puntos. Elige una arena y empieza a jugar.</p>
-          <button className="primary" onClick={()=>setScreen('boxing')}><Play size={18} fill="currentColor"/> JUGAR AHORA <ChevronRight size={18}/></button>
-        </div>
-        <div className="playerCard">
-          <div className="playerGlow" />
-          <div className="playerTop"><span>PLAYER 01</span><Crown size={18}/></div>
-          <div className="fighter">🥊</div>
-          <div className="levelLine"><span>NIVEL 18</span><b>RISING CONTENDER</b></div>
-          <div className="progress"><i style={{width:'72%'}} /></div>
-          <div className="playerStats"><span><Trophy size={15}/> 14 trofeos</span><span><Zap size={15}/> {energy.toLocaleString()} energía</span></div>
-        </div>
-      </section>
+    <section className="chooseArena">
+      <div className="sectionKick"><div><span>SPORT SELECT</span><h2>Elige tu arena</h2></div><p>Muévete para ganar. Cada deporte usa un patrón distinto de movimiento.</p></div>
+      <div className="sportDeck">{sports.map((s,i)=><button key={s.id} className={`gameTile ${s.tone} ${s.status==='soon'?'isLocked':''}`} onClick={()=>s.id==='boxing'&&setScreen('boxing')}>
+        <div className="tileTop"><span>0{i+1}</span><b>{s.status==='ready'?<><CircleDot size={12}/> PLAYABLE</>:<><Lock size={12}/> LOCKED</>}</b></div>
+        <div className="tileArt"><span>{s.icon}</span><i/></div>
+        <div className="tileCopy"><small>{s.meta}</small><h3>{s.name}</h3><p>{s.kicker}</p></div>
+        <div className="tileAction"><span>{s.status==='ready'?'ENTER ARENA':'COMING SOON'}</span><ChevronRight/></div>
+      </button>)}</div>
+    </section>
 
-      <section className="arenaSection">
-        <div className="sectionTitle"><div><span>ELIGE TU ARENA</span><h2>¿Qué quieres jugar hoy?</h2></div><button className="ghost" onClick={()=>setEnergy(v=>v+25)}>+25 ⚡ demo</button></div>
-        <div className="sportGrid">
-          {sports.map((sport, i)=><button key={sport.id} className={`sportCard ${sport.tone} ${sport.status==='soon'?'locked':''}`} onClick={()=>sport.id==='boxing'&&setScreen('boxing')}>
-            <div className="sportTop"><span className="sportNumber">0{i+1}</span>{sport.status==='ready'?<span className="live"><i/> READY</span>:<Lock size={16}/>}</div>
-            <div className="sportIcon">{sport.icon}</div>
-            <div><h3>{sport.name}</h3><p>{sport.kicker}</p></div>
-            <div className="sportFoot"><span>{sport.status==='ready'?'ENTRAR':'PRÓXIMAMENTE'}</span><ChevronRight size={18}/></div>
-          </button>)}
-        </div>
-      </section>
-
-      <section className="lowerGrid">
-        <article className="challenge">
-          <div className="challengeIcon"><Medal size={28}/></div><div><span>RETO DEL DÍA</span><h3>Iron Fists</h3><p>Conecta <b>300 golpes</b> en cualquier modo de Boxing Arena.</p></div>
-          <div className="challengeRight"><strong>126 / 300</strong><div className="miniProgress"><i style={{width:'42%'}}/></div><em>+500 XP</em></div>
-        </article>
-        <article className="streak"><div><span>RACHA ACTUAL</span><h3>7 días 🔥</h3><p>Un juego más hoy mantiene viva tu racha.</p></div><div className="days">{['L','M','X','J','V','S','D'].map((d,i)=><i key={d} className={i<6?'done':i===6?'today':''}>{i<6?'✓':d}</i>)}</div></article>
-      </section>
-    </main>
-  );
+    <section className="missionRow">
+      <article className="dailyMission"><div className="missionIcon"><Target/></div><div><span>DAILY MISSION</span><h3>IRON FISTS</h3><p>Conecta 300 golpes en Boxing Arena.</p></div><div className="missionProgress"><b>126 <small>/ 300</small></b><i><em/></i><span>+500 XP</span></div></article>
+      <article className="playerPulse"><div><span>PLAYER PULSE</span><h3>7 DAYS 🔥</h3><p>Tu mejor racha de movimiento este mes.</p></div><div className="pulseBars">{[56,78,63,91,70,84,96].map((h,i)=><i key={i} style={{height:`${h}%`}} className={i===6?'hot':''}/>)}</div></article>
+    </section>
+  </main>;
 }
 
-function BoxingHub({onBack,onStart}:{onBack:()=>void,onStart:()=>void}) {
-  return <main className="boxingShell">
-    <div className="boxingBackdrop" />
-    <header className="gameHeader"><button className="roundBtn" onClick={onBack}><ArrowLeft/></button><div className="miniBrand">MOTION ARENA <span>/ BOXING</span></div><div className="gameStats"><span><Flame size={15}/>7</span><span><Zap size={15}/>2,480</span></div></header>
-    <section className="boxingHero">
-      <div className="boxingCopy"><div className="eyebrow red">🥊 ARENA 01</div><h1>BOXING<br/><em>ARENA</em></h1><p>Golpea al ritmo, construye combos y esquiva ataques. Tu cámara será el control.</p><div className="tags"><span>JAB</span><span>CROSS</span><span>BLOCK</span><span>DODGE</span></div></div>
-      <div className="ringVisual"><div className="ringLines"/><div className="dummy"><div className="dummyHead"/><div className="dummyBody">TARGET</div></div><span className="hit h1">+100</span><span className="hit h2">PERFECT</span></div>
+function BoxingHub({onBack,onGo}:{onBack:()=>void;onGo:(s:'calibration'|'motionlab')=>void}){
+  return <main className="boxingApp"><div className="boxingNoise"/><header className="boxingTop"><button className="iconBtn" onClick={onBack}><ArrowLeft/></button><div className="boxingBrand"><b>01</b><span>MOTION ARENA / BOXING</span></div><div className="boxingMeters"><span><Gauge size={15}/> 0 BPM</span><span><Zap size={15}/> 2,480 XP</span></div></header>
+    <section className="fightHero"><div className="fightCopy"><div className="fightTag">LIVE MOTION SPORT</div><h1>BOXING<br/><em>ARENA</em></h1><p>Golpea al aire, mantén la guardia y esquiva. El Motion Engine convierte tu pose en controles del juego.</p><div className="combatLegend"><span><i>01</i> JAB</span><span><i>02</i> GUARD</span><span><i>03</i> DODGE</span><span><i>04</i> CROUCH</span></div></div>
+      <div className="ringScene"><div className="ringRopes rTop"/><div className="ringRopes rMid"/><div className="ringRopes rBottom"/><div className="opponent"><div className="oppHead"/><div className="oppBody"/><i className="glove gL">L</i><i className="glove gR">R</i></div><div className="impact one">PERFECT</div><div className="impact two">+100</div><div className="roundBadge">ROUND <b>01</b></div></div>
     </section>
-    <section className="modeSection"><div className="modeHead"><div><span>SELECCIONA MODO</span><h2>Sube al ring.</h2></div><div className="sensor"><i/> MOTION ENGINE · PREVIEW</div></div>
-      <div className="modeGrid">{boxingModes.map((m,i)=><button className={`modeCard ${!m.unlocked?'modeLocked':''}`} key={m.title} onClick={()=>m.unlocked&&onStart()}><span className="modeIndex">0{i+1}</span><div className="modeEmoji">{m.icon}</div><h3>{m.title}</h3><p>{m.subtitle}</p>{m.unlocked?<b>JUGAR <ChevronRight size={16}/></b>:<b><Lock size={14}/> NIVEL 22</b>}</button>)}</div>
-    </section>
-    <section className="datasetNote"><Shield size={22}/><div><span>BOXING INTELLIGENCE</span><strong>Preparado para integrar reconocimiento avanzado de golpes.</strong><p>El Bloque 1 deja el módulo desacoplado para conectar pose tracking y clasificadores en los siguientes bloques.</p></div></section>
+    <section className="modeRail"><div className="modeTitle"><div><span>FIGHT MODES</span><h2>¿Cómo quieres moverte?</h2></div><div className="engineBadge"><i/> MOTION ENGINE v0.2</div></div><div className="fightModes">{modes.map((m,i)=><button key={m.title} className={`fightMode ${!m.unlocked?'locked':''}`} onClick={()=>m.unlocked&&onGo(m.action==='motion'?'motionlab':'calibration')}><span className="modeNo">0{i+1}</span><div className="modeGlyph">{m.icon}</div><h3>{m.title}</h3><p>{m.subtitle}</p><b>{m.unlocked?'ENTER':'LEVEL 22'} <ChevronRight size={16}/></b></button>)}</div></section>
+    <section className="techStrip"><Shield/><div><span>BLOCK 02 · COMPUTER VISION</span><b>Cámara real + 33 puntos corporales + Motion Engine inicial.</b><p>La detección ocurre en tu navegador. Este bloque reconoce presencia, centrado, guardia, jab, esquiva y crouch.</p></div><Camera/></section>
   </main>
 }
 
-function Calibration({onBack}:{onBack:()=>void}) {
-  const [step,setStep]=useState(0);
-  return <main className="calShell"><button className="roundBtn calBack" onClick={onBack}><ArrowLeft/></button><div className="calCard"><div className="cameraFrame"><div className="scanline"/><Camera size={54}/><span>CAMERA PREVIEW</span><small>El acceso real a cámara se conecta en el Bloque 2.</small><div className="corner tl"/><div className="corner tr"/><div className="corner bl"/><div className="corner br"/></div><div className="calCopy"><div className="eyebrow cyanText"><Gamepad2 size={16}/> QUICK FIGHT</div><h1>Configura tu zona de juego.</h1><p>Colócate de cuerpo completo frente a la cámara. Necesitamos espacio suficiente para brazos y desplazamientos laterales.</p><div className="checks"><span className={step>=1?'checked':''}><i>1</i> Cámara centrada</span><span className={step>=2?'checked':''}><i>2</i> Cuerpo completo visible</span><span className={step>=3?'checked':''}><i>3</i> Zona despejada</span></div><button className="primary wide" onClick={()=>setStep(s=>Math.min(3,s+1))}>{step<3?'SIMULAR CALIBRACIÓN':'READY — BLOQUE 2'} <ChevronRight size={18}/></button></div></div></main>
+function Calibration({onBack,onReady}:{onBack:()=>void;onReady:()=>void}){
+  const [ready,setReady]=useState(false);
+  return <main className="trackingPage"><header className="trackingTop"><button className="iconBtn" onClick={onBack}><ArrowLeft/></button><div><span>QUICK SETUP</span><b>CALIBRATION BAY</b></div><div className={`readyPill ${ready?'ok':''}`}>{ready?'BODY LOCKED':'WAITING FOR PLAYER'}</div></header>
+    <section className="calibrationLayout"><div className="calIntro"><span className="micro">STEP 01 · CAMERA LOCK</span><h1>Entra al área<br/>de juego.</h1><p>Colócate de cuerpo completo frente a la cámara. Cuando los tres indicadores estén en verde, el Motion Engine queda listo.</p><div className="spaceTip"><Gamepad2/><div><b>Zona recomendada</b><span>2–3 metros frente a la cámara y espacio libre a los lados.</span></div></div>{ready&&<button className="launchBtn" onClick={onReady}>ENTER MOTION LAB <ChevronRight/></button>}</div><PoseCamera onReady={(ok)=>{if(ok)setReady(true)}}/></section>
+  </main>;
+}
+
+function MotionLab({onBack}:{onBack:()=>void}){
+  return <main className="trackingPage lab"><header className="trackingTop"><button className="iconBtn" onClick={onBack}><ArrowLeft/></button><div><span>BOXING ARENA</span><b>MOTION LAB</b></div><div className="readyPill ok">LIVE TEST</div></header>
+    <section className="labIntro"><div><span>BLOCK 02 · LIVE INPUT</span><h1>Prueba tus controles.</h1><p>Ponte en guardia, lanza jabs, esquiva y agáchate. El panel responderá cuando detecte el movimiento.</p></div><div className="comboPrompt"><small>TRY THIS</small><b>GUARD → JAB → DODGE</b><span>Repite varias veces para calibrar tu estilo.</span></div></section><PoseCamera/>
+    <section className="labNotes"><article><Star/><div><b>Jab</b><span>Extiende el brazo con velocidad y vuelve a guardia.</span></div></article><article><Shield/><div><b>Guardia</b><span>Mantén ambas manos cerca del rostro/hombros.</span></div></article><article><Activity/><div><b>Esquiva</b><span>Desplaza el torso a izquierda o derecha sin salir del marco.</span></div></article></section>
+  </main>;
 }
