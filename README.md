@@ -1,27 +1,30 @@
-# Motion Arena — Block 02
+# Motion Arena — Block 03
 
-Motion Arena is an active-gaming webapp inspired by motion sports games. Block 02 turns the camera into the first real controller.
+Block 03 turns Boxing Arena into a playable camera-controlled fight.
 
-## What's new
-- Complete visual redesign: sporty console / stadium aesthetic.
-- Browser camera access.
-- MediaPipe Pose Landmarker with 33 body landmarks.
-- Live skeleton overlay.
-- Calibration checks: full body, centering, playing distance.
-- First Motion Engine rules: guard, left/right jab, dodge and crouch.
-- Motion Lab for testing movement input before the actual fight gameplay.
+## Added in this block
 
-## Run locally
+- Full Quick Fight game loop.
+- 3 rounds of 2 minutes.
+- Pre-round countdown and round transitions.
+- Camera + MediaPipe body tracking inside the fight HUD.
+- Live commands for left/right jab, guard, dodge and crouch.
+- Timing judgments: PERFECT / GOOD / MISS.
+- Player and opponent health bars.
+- Score, combo, best combo, accuracy and damage tracking.
+- Adaptive prompt speed as each round progresses.
+- Opponent knockdowns and score bonuses.
+- Match results screen with XP estimate.
+- Small generated WebAudio cues; no audio files required.
+- Visual redesign of Boxing Arena to feel closer to an active sports videogame.
+
+## Run
+
 ```bash
 npm install
 npm run dev
 ```
-Open http://localhost:3000. Camera access requires localhost or HTTPS.
 
-## Build
-```bash
-npm run build
-```
+Open the site, go to **Boxing Arena → Quick Fight**, complete calibration and enter the ring.
 
-## Notes
-Pose detection runs in the browser. MediaPipe WASM and the pose model are loaded from their hosted endpoints at runtime. The movement heuristics in this block are intentionally lightweight; later blocks can add per-player calibration and learned boxing-action classifiers.
+Camera access requires HTTPS in production or localhost during development.
